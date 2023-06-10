@@ -1,0 +1,7 @@
+{
+  "name": "dec2022_node_course",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
