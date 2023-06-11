@@ -1,4 +1,9 @@
 import express, { Request, Response } from "express";
+import * as mongoose from "mongoose";
+
+import { configs } from "./configs/config";
+
+console.log(process.env);
 
 const users = [
   {
@@ -77,8 +82,7 @@ app.delete("/users/:userId", (req: Request, res: Response) => {
   });
 });
 
-const PORT = 5001;
-
-app.listen(PORT, () => {
-  console.log(`Server has started on port ${PORT}`);
+app.listen(configs.PORT, () => {
+  mongoose.connect(configs.DB_URL);
+  console.log(`Server has started on port ${configs.PORT}`);
 });
