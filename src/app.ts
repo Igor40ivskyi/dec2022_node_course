@@ -2,45 +2,22 @@ import express, { Request, Response } from "express";
 import * as mongoose from "mongoose";
 
 import { configs } from "./configs/config";
-
-console.log(process.env);
-
-const users = [
-  {
-    name: "Andriy",
-    age: 30,
-    gender: "male",
-  },
-  {
-    name: "Vasya",
-    age: 22,
-    gender: "male",
-  },
-  {
-    name: "Ann",
-    age: 13,
-    gender: "female",
-  },
-  {
-    name: "Monica",
-    age: 25,
-    gender: "female",
-  },
-  {
-    name: "Ivan",
-    age: 40,
-    gender: "male",
-  },
-];
+import { User } from "./models/User.model";
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/users", (req: Request, res: Response) => {
-  console.log("HELLO FROM APP GET /");
-  res.status(200).json(users);
+const users = [{ name: "vasya", age: 31, status: true }];
+
+app.get("/users", async (req: Request, res: Response):Promise<Response<IUser>> => {
+  try {
+    const users = await User.find();
+    return res.json(users);
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 app.get("/users/:userId", (req: Request, res: Response) => {
@@ -82,7 +59,7 @@ app.delete("/users/:userId", (req: Request, res: Response) => {
   });
 });
 
-app.listen(configs.PORT, () => {
-  mongoose.connect(configs.DB_URL);
+app.listen(configs.PORT, async () => {
+  await mongoose.connect(configs.DB_URL);
   console.log(`Server has started on port ${configs.PORT}`);
 });
