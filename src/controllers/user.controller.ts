@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
 import { ApiError } from "../errors";
-import { User } from "../models/User.model";
 import { userService } from "../services/user.service";
 import { IUser } from "../types/user.type";
 import { UserValidator } from "../validators";
@@ -26,7 +25,7 @@ class UserController {
     next: NextFunction
   ): Promise<Response<IUser>> {
     try {
-      const foundUserById = await User.findById(req.params.userId);
+      const foundUserById = await userService.findById(req.params.userId);
       return res.status(200).json(foundUserById);
     } catch (e) {
       next(e);
@@ -45,7 +44,7 @@ class UserController {
         throw new ApiError(error.message, 400);
       }
 
-      const createdUser = await User.create(value);
+      const createdUser = await userService.create(value);
       return res.status(201).json(createdUser);
     } catch (e) {
       next(e);
@@ -63,13 +62,8 @@ class UserController {
       if (error) {
         throw new ApiError("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", 400);
       }
-      const updatedUser = await User.findOneAndUpdate(
-        { _id: userId },
-        { ...value },
-        {
-          returnDocument: "after",
-        }
-      );
+      const updatedUser = await userService.updateById(userId, value);
+
       return res.status(200).json(updatedUser);
     } catch (e) {
       next(e);
@@ -84,7 +78,7 @@ class UserController {
     try {
       const { userId } = req.params;
 
-      const deletedUser = await User.findOneAndDelete({ _id: userId });
+      const deletedUser = await userService.deleteById(userId);
 
       return res.status(200).json(deletedUser);
     } catch (e) {

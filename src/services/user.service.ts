@@ -9,6 +9,22 @@ class UserService {
   public async create(data: IUser): Promise<IUser> {
     return User.create(data);
   }
+
+  public async findById(id: string): Promise<IUser> {
+    return User.findById(id);
+  }
+
+  public async updateById(id: string, data: IUser): Promise<IUser> {
+    return User.findOneAndUpdate(
+      { _id: id },
+      { ...data },
+      { returnDocument: "after" }
+    );
+  }
+
+  public async deleteById(id: string): Promise<IUser> {
+    return User.findOneAndDelete({ _id: id });
+  }
 }
 
 export const userService = new UserService();
