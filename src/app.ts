@@ -4,6 +4,7 @@ import * as mongoose from "mongoose";
 import { configs } from "./configs/config";
 import { ApiError } from "./errors";
 import { User } from "./models/User.model";
+import { userRouter } from "./routers/user.router";
 import { IUser } from "./types/user.type";
 import { UserValidator } from "./validators";
 
@@ -12,17 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get(
-  "/users",
-  async (req: Request, res: Response): Promise<Response<IUser[]>> => {
-    try {
-      const users = await User.find();
-      return res.json(users);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-);
+app.use("/users", userRouter);
 
 app.get(
   "/users/:userId",
