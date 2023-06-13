@@ -1,9 +1,11 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import * as mongoose from "mongoose";
 
 import { configs } from "./configs/config";
+import { ApiError } from "./errors/api.error";
 import { User } from "./models/User.model";
 import { IUser } from "./types/user.type";
+import { UserValidator } from "./validators/user.validator";
 
 const app = express();
 
@@ -36,31 +38,49 @@ app.get(
 
 app.post(
   "/users",
-  async (req: Request, res: Response): Promise<Response<IUser>> => {
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<IUser>> => {
     try {
-      const createdUser = await User.create(req.body);
+      const { error, value } = UserValidator.create.validate(req.body);
+      if (error) {
+        throw new ApiError(error.message, 400);
+      }
+      const createdUser = await User.create(value);
       return res.status(201).json(createdUser);
     } catch (e) {
-      console.log(e);
+      next(e);
     }
   }
 );
 
 app.put(
   "/users/:userId",
-  async (req: Request, res: Response): Promise<Response<IUser>> => {
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<IUser>> => {
     try {
+      const { error, value } = UserValidator.update.validate(req.body);
+
+      if (error) {
+        throw new ApiError(error.message, 400);
+      }
+
       const { userId } = req.params;
       const updatedUser = await User.findOneAndUpdate(
         { _id: userId },
-        { ...req.body },
+        { ...value },
         {
           returnDocument: "after",
         }
       );
       return res.status(200).json(updatedUser);
     } catch (e) {
-      console.log(e);
+      next(e);
     }
   }
 );
@@ -79,6 +99,11 @@ app.delete(
     }
   }
 );
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  const status = err.status || 500;
+  res.status(status).json(err.message);
+});
 
 app.listen(configs.PORT, async () => {
   await mongoose.connect(configs.DB_URL);
