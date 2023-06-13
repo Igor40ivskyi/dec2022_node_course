@@ -1,5 +1,6 @@
 import { User } from "../models/User.model";
 import { IUser } from "../types/user.type";
+import {userRepository} from "../repositories/user.repository";
 
 class UserService {
   public async findAll(): Promise<IUser[]> {
@@ -7,7 +8,7 @@ class UserService {
   }
 
   public async create(data: IUser): Promise<IUser> {
-    return User.create(data);
+    return userRepository.create(data);
   }
 
   public async findById(id: string): Promise<IUser> {
